@@ -35,7 +35,7 @@ export default function BtnCont({
 
     if (isGreen) {
         textCont.color = colors.green_dark
-        cont.backgroundColor = colors.green_dark
+        cont.backgroundColor = colors.green_light
     }
 
     return (

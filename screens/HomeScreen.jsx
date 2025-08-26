@@ -1,4 +1,5 @@
-import {View, StyleSheet} from "react-native";
+import {View, StyleSheet, ScrollView} from "react-native";
+import {useState} from "react";
 import Header from "../components/Header";
 import FormCadastro from "../components/FormCadastro";
 import BtnCont from "../components/BtnCont";
@@ -6,24 +7,87 @@ import colors from "../desing/colors";
 import Search from "../components/Search";
 import EmptyList from "../components/EmptyList";
 import Card from "../components/Card";
+import React from "react";
 
 export default function HomeScreen() {
+
+    const[lista, setLista] = useState([]);
+    const[novaTarefa, setNovaTarefa] = useState("");
+    const[busca, setBuscar] = useState("");
+
+    function cadastrarTarefa() {
+        let aux = [
+            ...lista,
+            {
+                tarefa: novaTarefa,
+                concluido: false
+            }
+        ]
+
+        setLista(aux)
+        setNovaTarefa("")
+        console.log(aux)
+    }
+
+    function numTarefasConcluidas(){
+        let concluidas = lista.filter(tarefa => tarefa.concluido);
+        return concluidas.length; //numero (quantidade) de tarefas encontradas
+    }
+
+    function numTarefasAtivas() {
+        let ativas = lista.filter(tarefa => !tarefa.concluido);
+        return ativas.length;
+    }
+
+    function concluirTarefas(index) {
+        let ListaAux = [...lista]
+        ListaAux[index].concluido = !ListaAux[index].concluido
+        setLista(ListaAux)
+    }
+
+    function excluirTarefas(index) {
+        let ListaAux = [...lista]
+        ListaAux.splice(index, 1)
+        setLista(ListaAux)
+    }
+
+
+
     return (
-        <View>
+        <ScrollView>
             <Header />
-            <FormCadastro />
+            <FormCadastro fnCadastrar={cadastrarTarefa} texto={novaTarefa} setTexto={setNovaTarefa} />
 
             <View style={styles.botoes}>
-                <BtnCont text={"Tarefas Criadas"} num={"12"} />
-                <BtnCont text={"Concluídas"} num={"4"} isGreen={true} />
+                <BtnCont text={"Tarefas Criadas"} num={numTarefasAtivas()} />
+                <BtnCont text={"Concluídas"} num={numTarefasConcluidas()} isGreen={true} />
             </View>
 
-            <Search />
+            <Search texto={busca} setTexto={setBuscar} />
 
-            <EmptyList />
+            {lista.length === 0 && <EmptyList />}
 
-            <Card />
-        </View>
+            {lista.sort((a, b) => a.concluido - b.concluido)
+                .map((item, index) => {
+                    if (item.tarefa.toLowerCase().includes(busca.toLowerCase())) {
+                        return (
+                            <Card key={index}
+                                  texto={item.tarefa}
+                                  concluido={item.concluido}
+                                  fnExcluir={() => excluirTarefas(index)}
+                                  fnConcluir={() => concluirTarefas(index)}
+                            />
+                        )
+                    }
+
+                    return null
+
+})}
+
+
+
+
+        </ScrollView>
     )
 }
 
